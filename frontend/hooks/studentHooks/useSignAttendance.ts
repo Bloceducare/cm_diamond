@@ -61,15 +61,18 @@ const useSignAttendance = (
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_RELAY_URL}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studentAddress: _studentAddress,
-          lectureId: lectureIdBytes,
-          contractAddress,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_RELAY_URL}/signAttendance`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            studentAddress: _studentAddress,
+            lectureId: lectureIdBytes,
+            contractAddress,
+          }),
+        },
+      );
 
       const data = await response.json();
 

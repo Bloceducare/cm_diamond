@@ -5,7 +5,7 @@ import {OrganisationFacet} from "../organisation/facets/OrganisationFacet.sol";
 
 contract OrganisationSelectorsFacet {
     function getOrganisationSelectors() external pure returns (bytes4[] memory) {
-        bytes4[] memory selectors = new bytes4[](41);
+        bytes4[] memory selectors = new bytes4[](44);
 
         selectors[0] = OrganisationFacet.deploy.selector;
         selectors[1] = OrganisationFacet.initializeContracts.selector;
@@ -48,6 +48,9 @@ contract OrganisationSelectorsFacet {
         selectors[38] = OrganisationFacet.toggleOrganizationStatus.selector;
         selectors[39] = OrganisationFacet.getOrganizationStatus.selector;
         selectors[40] = OrganisationFacet.signAttendanceWithGas.selector;
+        selectors[41] = OrganisationFacet.createGaslessAttendance.selector;
+        selectors[42] = OrganisationFacet.openAttendanceGasless.selector;
+        selectors[43] = OrganisationFacet.closeAttendanceGasless.selector;
 
         return selectors;
     }

@@ -20,6 +20,10 @@ export const sideLinksAd = [
     href: "/admin/attendence",
   },
   {
+    name: "Gasless Attendance",
+    href: "/admin/gaslessattendance",
+  },
+  {
     name: "Upload Score",
     href: "/admin/uploadscore",
   },

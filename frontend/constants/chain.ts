@@ -9,7 +9,7 @@ export const SUPPORTED_CHAIN_IDS = [
 
 // Check if the chain ID is supported
 export const isSupportedChain = (
-  chainId: number | undefined
+  chainId: number | undefined,
 ): chainId is (typeof SUPPORTED_CHAIN_IDS)[number] =>
   chainId !== undefined &&
   (SUPPORTED_CHAIN_IDS as readonly number[]).includes(chainId);
@@ -22,26 +22,3 @@ export const CHAIN_ID_TO_NAME: Record<
   [lisk.id]: "Lisk",
   [arbitrum.id]: "Arbitrum",
 };
-
-// ---------------------------------------
-// export const SUPPORTED_CHAIN_ID = 84532;
-//
-// export const isSupportedChain = (
-//   chainId: number | undefined,
-// ): chainId is number =>
-//   chainId !== undefined && Number(chainId) === SUPPORTED_CHAIN_ID;
-//
-//84532 for base sepolia
-//8453 for base mainnet
-//
-// export const isSupportedChain = (
-//   chainId: number | undefined,
-// ): chainId is number =>
-//   chainId !== undefined && SUPPORTED_CHAIN_IDS.includes(chainId);
-// Optional: Map chain IDs to names for display purposes
-// export const CHAIN_ID_TO_NAME = {
-//   [baseSepolia.id]: "Base Sepolia",
-//   [lisk.id]: "Lisk",
-//   [arbitrum.id]: "Arbitrum",
-// };
-//

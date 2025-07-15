@@ -34,15 +34,25 @@ const NETWORKS = {
 
 // Helper function to detect network based on contract address or other parameters
 async function detectNetwork(contractAddress) {
+  // This is a simple implementation - you might need a more sophisticated approach
+  // based on your actual needs. You could:
+  // 1. Check the contract address prefix
+  // 2. Make test calls to different providers
+  // 3. Accept a network parameter from the client
+
+  // For now, let's assume we'll use a simple approach where we try each provider
   try {
+    // Try Ethereum first
     const ethProvider = new ethers.JsonRpcProvider(NETWORKS.MAINNET.rpcUrl);
     const code = await ethProvider.getCode(contractAddress);
     if (code !== "0x") return NETWORKS.MAINNET;
 
+    // Try Arbitrum next
     const arbProvider = new ethers.JsonRpcProvider(NETWORKS.ARBITRUM.rpcUrl);
     const arbCode = await arbProvider.getCode(contractAddress);
     if (arbCode !== "0x") return NETWORKS.ARBITRUM;
 
+    // Try Lisk last
     const liskProvider = new ethers.JsonRpcProvider(NETWORKS.LISK.rpcUrl);
     const liskCode = await liskProvider.getCode(contractAddress);
     if (liskCode !== "0x") return NETWORKS.LISK;

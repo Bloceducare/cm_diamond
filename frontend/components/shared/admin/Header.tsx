@@ -60,24 +60,32 @@ const Header = ({
   };
 
   const allAvailableChains = useChains();
+  const { chain } = useAccount();
+
   useEffect(() => {
     if (
       isConnected &&
       SUPPORTED_CHAIN_IDS.includes(
         Number(selectNetwork) as 84532 | 1135 | 42161,
-      )
+      ) &&
+      chain?.id !== Number(selectNetwork)
     ) {
-      switchChain({ chainId: Number(selectNetwork) });
-      toast.success(
-        `Successfully connected to ${
-          allAvailableChains.find(
-            (allAvailableChain) =>
-              allAvailableChain.id === Number(selectNetwork),
-          )?.name
-        }`,
+      switchChain(
+        { chainId: Number(selectNetwork) },
+        {
+          onSuccess: (data) => {
+            toast.success(
+              `Successfully connected to ${
+                allAvailableChains.find(
+                  (allAvailableChain) => allAvailableChain.id === data.id,
+                )?.name
+              }`,
+            );
+          },
+        },
       );
     }
-  }, [selectNetwork]);
+  }, [selectNetwork, chain?.id, isConnected]);
 
   const adminName = useGetMentorName(address);
 
