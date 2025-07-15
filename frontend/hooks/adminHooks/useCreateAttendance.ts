@@ -1,7 +1,7 @@
 "use client";
 import { OrganisationABI } from "@/constants/ABIs/OrganisationABI";
 import { ethers } from "ethers";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import {
   useWriteContract,

@@ -60,12 +60,29 @@ contract OrganisationFacet {
         LibOrganisation.createAttendance(_lectureId, _uri, _topic);
     }
 
+    function createGaslessAttendance(
+        bytes calldata _lectureId,
+        string calldata _uri,
+        string calldata _topic,
+        address mentor
+    ) external {
+        LibOrganisation.createGaslessAttendance(_lectureId, _uri, _topic, mentor);
+    }
+
     function openAttendance(bytes calldata _lectureId) external {
         LibOrganisation.openAttendance(_lectureId);
     }
 
+    function openAttendanceGasless(address _menotorOnDuty, bytes calldata _lectureId) external {
+        LibOrganisation.openAttendanceGasless(_menotorOnDuty, _lectureId);
+    }
+
     function closeAttendance(bytes calldata _lectureId) external {
         LibOrganisation.closeAttendance(_lectureId);
+    }
+
+    function closeAttendanceGasless(address _menotorOnDuty, bytes calldata _lectureId) external {
+        LibOrganisation.closeAttendanceGasless(_menotorOnDuty, _lectureId);
     }
 
     function signAttendance(address _student, bytes memory _lectureId) external {

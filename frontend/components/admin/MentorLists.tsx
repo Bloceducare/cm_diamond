@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -67,14 +67,14 @@ const MentorLists = () => {
         header: () => <span>Action</span>,
       },
     ],
-    [selectedAddresses]
+    [selectedAddresses],
   );
 
   const handleCheckboxChange = (address: string) => {
     setSelectedAddresses((prevSelected) =>
       prevSelected.includes(address)
         ? prevSelected.filter((addr) => addr !== address)
-        : [...prevSelected, address]
+        : [...prevSelected, address],
     );
   };
 
@@ -112,6 +112,7 @@ const MentorLists = () => {
       _setData(list);
     }
   }, [list.length, list, _setData]);
+  console.log(list);
 
   // For evicting students
   const { isConnected } = useAccount();
@@ -147,26 +148,42 @@ const MentorLists = () => {
               {" "}
               List of {data.length} mentors in your programme
             </h4>
-            <p className="text-sm text-color2">To upload mentor&apos;s list, <Link href="/admin/fileupload" className=" text-color1 hover:underline">
-              Click here
-            </Link>
+            <p className="text-sm text-color2">
+              To upload mentor&apos;s list,{" "}
+              <Link
+                href="/admin/fileupload"
+                className=" text-color1 hover:underline"
+              >
+                Click here
+              </Link>
             </p>
 
             {/* Guidelines */}
             <div className="w-full flex flex-col mt-4 text-red-600">
               <h5 className="text-red-600 text-sm">Guidelines</h5>
               <ol className="list-decimal list-inside text-xs text-red-600">
-                <li>Upload mentor&apos;s list from here: <Link href="/admin/fileupload" className="underline">
-                  Upload.
-                </Link>
+                <li>
+                  Upload mentor&apos;s list from here:{" "}
+                  <Link href="/admin/fileupload" className="underline">
+                    Upload.
+                  </Link>
                 </li>
                 <li>The organisation creator is also a mentor</li>
                 <li>Only the organisation creator can add/remove mentor</li>
                 <li>You can search for any mentor using their address/name.</li>
-                <li>Click on the checkboxes to select mentors to be removed.</li>
-                <li>Click on the Remove button to evict the selected mentors.</li>
-                <li>Removed mentors will be removed from the list and organisation.</li>
-                <li className="uppercase font-semibold">Do not remove the organisation creator!</li>
+                <li>
+                  Click on the checkboxes to select mentors to be removed.
+                </li>
+                <li>
+                  Click on the Remove button to evict the selected mentors.
+                </li>
+                <li>
+                  Removed mentors will be removed from the list and
+                  organisation.
+                </li>
+                <li className="uppercase font-semibold">
+                  Do not remove the organisation creator!
+                </li>
               </ol>
             </div>
           </div>
@@ -209,9 +226,9 @@ const MentorLists = () => {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
@@ -225,7 +242,7 @@ const MentorLists = () => {
                     <TableCell className="text-nowrap" key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

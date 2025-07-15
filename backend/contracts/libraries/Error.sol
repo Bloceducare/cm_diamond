@@ -30,4 +30,8 @@ library Error {
     error UNAUTHORIZED_CALLER();
     error TEST_ID_ALREADY_USED();
     error INITIALIZATION_FAILED();
+    error THREAT_DETECTED();
+    error INVALID_MENTOR_ADDRESS();
+    error INVALID_STUDENT_ADDRESS();
+    error NOT_A_STUDENT();
 }

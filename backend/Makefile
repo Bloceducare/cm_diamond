@@ -24,6 +24,17 @@ deployLisk:
 	--account w3b-relayer \
 	--sender 0x6c798393352588A466FD4B2dAC7EED78aFF92AeF
 
+upgradeLisk:
+		forge script scripts/DeployDiamondScript.sol:DiamondUpgradeScript \
+		--rpc-url https://rpc.api.lisk.com \
+		--etherscan-api-key 123 \
+		--broadcast \
+  	--sig "upgradeChildDiamond(address)" $(CHILD_DIAMOND) -vvvv \
+		--verify \
+		--verifier blockscout \
+		--verifier-url https://blockscout.lisk.com/api \
+		--account w3b-relayer \
+		--sender 0x6c798393352588A466FD4B2dAC7EED78aFF92AeF
 
 verifyFD:
 		@CONSTRUCTOR_ARGS=$$(cat diamond_args.txt | sed 's/0x//'); \
@@ -94,8 +105,6 @@ upgrade-child:
 		--verifier-url "https://api-sepolia.basescan.org/api" \
 	 	--account josh_base \
 	 	--sender 0xb9d5b499e3de63810e0d4883c1f0c84bc5f80660
-
-
 
 verifyDiamondLoupe:
 		forge verify-contract 0x638636E89cf5833532EfE21B2bB2CeC905782f71 contracts/facets/DiamondLoupeFacet.sol:DiamondLoupeFacet \

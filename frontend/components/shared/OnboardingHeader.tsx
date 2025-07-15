@@ -28,7 +28,7 @@ const OnboardingHeader = () => {
   const { walletInfo } = useWalletInfo();
   const { switchChain } = useSwitchChain();
   const [selectNetwork, setSelectNetwork] = useState<string>(
-    chainId ? String(chainId) : ""
+    chainId ? String(chainId) : "",
   );
   const pathname = usePathname();
   const { scrollYProgress } = useScroll();
@@ -52,24 +52,32 @@ const OnboardingHeader = () => {
   };
 
   const allAvailableChains = useChains();
+  const { chain } = useAccount();
+
   useEffect(() => {
     if (
       isConnected &&
       SUPPORTED_CHAIN_IDS.includes(
-        Number(selectNetwork) as 84532 | 1135 | 42161
-      )
+        Number(selectNetwork) as 84532 | 1135 | 42161,
+      ) &&
+      chain?.id !== Number(selectNetwork)
     ) {
-      switchChain({ chainId: Number(selectNetwork) });
-      toast.success(
-        `Successfully connected to ${
-          allAvailableChains.find(
-            (allAvailableChain) =>
-              allAvailableChain.id === Number(selectNetwork)
-          )?.name
-        }`
+      switchChain(
+        { chainId: Number(selectNetwork) },
+        {
+          onSuccess: (data) => {
+            toast.success(
+              `Successfully connected to ${
+                allAvailableChains.find(
+                  (allAvailableChain) => allAvailableChain.id === data.id,
+                )?.name
+              }`,
+            );
+          },
+        },
       );
     }
-  }, [selectNetwork]);
+  }, [selectNetwork, chain?.id, isConnected]);
 
   return (
     <header className="w-full">
@@ -87,7 +95,7 @@ const OnboardingHeader = () => {
                     "before:h-full text-white": link.href == pathname,
                     "hover:before:h-full hover:text-white":
                       link.href != pathname,
-                  }
+                  },
                 )}
               >
                 {link.name}
@@ -103,7 +111,7 @@ const OnboardingHeader = () => {
                   setSelectNetwork(value);
                 }}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-32 focus:outline-none focus:ring-0">
                   <SelectValue placeholder="Select Chain" />
                 </SelectTrigger>
                 <SelectContent>
@@ -111,6 +119,7 @@ const OnboardingHeader = () => {
                     <SelectItem
                       key={chainObject.id}
                       value={String(chainObject.id)}
+                      className="focus:outline-none"
                     >
                       {chainObject.name}
                     </SelectItem>
@@ -118,14 +127,14 @@ const OnboardingHeader = () => {
                 </SelectContent>
               </Select>
             )}
-        
+
             <Button
               onClick={walletConnect}
               type="button"
               className={`transition-all duration-200  flex items-center gap-1 ${
                 isConnected &&
                 SUPPORTED_CHAIN_IDS.includes(
-                  Number(selectNetwork) as 84532 | 1135 | 42161
+                  Number(selectNetwork) as 84532 | 1135 | 42161,
                 ) &&
                 "bg-white text-color1 hover:bg-color1 hover:text-white border border-color1"
               } ${
@@ -134,7 +143,7 @@ const OnboardingHeader = () => {
               } ${
                 isConnected &&
                 !SUPPORTED_CHAIN_IDS.includes(
-                  Number(selectNetwork) as 84532 | 1135 | 42161
+                  Number(selectNetwork) as 84532 | 1135 | 42161,
                 ) &&
                 "bg-red-600 text-white border border-red-600 hover:bg-red-700"
               }`}

@@ -134,7 +134,7 @@ contract DiamondUpgradeScript is Script {
     }
 
     function writeAddressesToFile(address addr, string memory text) public {
-        string memory filename = "./lisk_contracts.txt";
+        string memory filename = "./lisk_contracts_new.txt";
 
         vm.writeLine(filename, "-------------------------------------------------");
         vm.writeLine(filename, text);

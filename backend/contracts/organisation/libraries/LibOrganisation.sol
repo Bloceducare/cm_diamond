@@ -225,28 +225,58 @@ library LibOrganisation {
         emit Events.StaffNamesChanged(_mentorsList.length);
     }
 
+    function _createAttendance(bytes calldata _lectureId, string calldata _uri, string calldata _topic, address mentor)
+        private
+    {
+        Organisation storage org = orgStorage();
+
+        if (org.lectureIdUsed[_lectureId]) {
+            revert Error.LECTURE_ID_ALREADY_USED();
+        }
+
+        if (mentor == address(0)) {
+            revert Error.INVALID_MENTOR_ADDRESS();
+        }
+
+        if (!org.isStaff[mentor]) {
+            revert Error.NOT_A_MENTOR();
+        }
+
+        org.lectureIdUsed[_lectureId] = true;
+        org.LectureIdCollection.push(_lectureId);
+
+        org.lectureInstance[_lectureId].uri = _uri;
+        org.lectureInstance[_lectureId].topic = _topic;
+        org.lectureInstance[_lectureId].mentorOnDuty = mentor;
+
+        org.moderatorsTopic[mentor].push(_lectureId);
+
+        INFT(org.NftContract).setDayUri(_lectureId, _uri);
+
+        emit Events.attendanceCreated(_lectureId, _uri, _topic, mentor);
+    }
+
     function createAttendance(bytes calldata _lectureId, string calldata _uri, string calldata _topic) internal {
         Organisation storage org = orgStorage();
 
         onlyMentorOnDuty();
-        if (org.lectureIdUsed[_lectureId] == true) {
-            revert Error.LECTURE_ID_ALREADY_USED();
+
+        _createAttendance(_lectureId, _uri, _topic, msg.sender);
+    }
+
+    function createGaslessAttendance(
+        bytes calldata _lectureId,
+        string calldata _uri,
+        string calldata _topic,
+        address mentor
+    ) internal {
+        Organisation storage org = orgStorage();
+
+        if (msg.sender != org.relayer) {
+            revert Error.THREAT_DETECTED();
         }
-        org.lectureIdUsed[_lectureId] = true;
 
-        org.LectureIdCollection.push(_lectureId);
-
-        org.lectureInstance[_lectureId].uri = _uri;
-
-        org.lectureInstance[_lectureId].topic = _topic;
-
-        org.lectureInstance[_lectureId].mentorOnDuty = msg.sender;
-
-        org.moderatorsTopic[msg.sender].push(_lectureId);
-
-        INFT(org.NftContract).setDayUri(_lectureId, _uri);
-
-        emit Events.attendanceCreated(_lectureId, _uri, _topic, msg.sender);
+        _createAttendance(_lectureId, _uri, _topic, mentor);
     }
 
     function mintMentorsSpok(address mentor, string memory uri) internal {
@@ -287,56 +317,58 @@ library LibOrganisation {
         emit Events.topicEditted(_lectureId, oldTopic, _topic);
     }
 
-    function signAttendance(address student, bytes memory lectureId) internal {
+    function _signAttendanceInternal(address student, bytes memory lectureId) private {
         Organisation storage org = orgStorage();
-        require(msg.sender == org.relayer, "THREAT_DETECTED");
-        require(student != address(0), "INVALID_STUDENT_ADDRESS");
-        require(org.isStudent[student], "NOT_A_STUDENT");
 
-        if (org.lectureIdUsed[lectureId] == false) {
+        if (!org.lectureIdUsed[lectureId]) {
             revert Error.INVALID_LECTURE_ID();
         }
-        if (org.lectureInstance[lectureId].status == false) {
+
+        if (!org.lectureInstance[lectureId].status) {
             revert Error.LECTURE_ID_CLOSED();
         }
-        if (org.individualAttendanceRecord[student][lectureId] == true) {
+
+        if (org.individualAttendanceRecord[student][lectureId]) {
             revert Error.ALREADY_SIGNED_ATTENDANCE_FOR_ID();
         }
+
         if (org.lectureInstance[lectureId].attendanceStartTime == 0) {
             org.lectureInstance[lectureId].attendanceStartTime = block.timestamp;
         }
 
         org.individualAttendanceRecord[student][lectureId] = true;
-        org.studentsTotalAttendance[student] = org.studentsTotalAttendance[student] + 1;
-        org.lectureInstance[lectureId].studentsPresent = org.lectureInstance[lectureId].studentsPresent + 1;
+        org.studentsTotalAttendance[student] += 1;
+        org.lectureInstance[lectureId].studentsPresent += 1;
         org.classesAttended[student].push(lectureId);
 
         INFT(org.NftContract).mint(student, lectureId, 1);
         emit Events.AttendanceSigned(lectureId, student);
     }
 
-    function signAttendanceWithGas(bytes memory _lectureId) internal {
+    function signAttendance(address student, bytes memory lectureId) internal {
         Organisation storage org = orgStorage();
-        onlyStudents();
-        if (org.lectureIdUsed[_lectureId] == false) {
-            revert Error.INVALID_LECTURE_ID();
-        }
-        if (org.lectureInstance[_lectureId].status == false) {
-            revert Error.LECTURE_ID_CLOSED();
-        }
-        if (org.individualAttendanceRecord[msg.sender][_lectureId] == true) {
-            revert Error.ALREADY_SIGNED_ATTENDANCE_FOR_ID();
-        }
-        if (org.lectureInstance[_lectureId].attendanceStartTime == 0) {
-            org.lectureInstance[_lectureId].attendanceStartTime = block.timestamp;
-        }
-        org.individualAttendanceRecord[msg.sender][_lectureId] = true;
-        org.studentsTotalAttendance[msg.sender] = org.studentsTotalAttendance[msg.sender] + 1;
-        org.lectureInstance[_lectureId].studentsPresent = org.lectureInstance[_lectureId].studentsPresent + 1;
-        org.classesAttended[msg.sender].push(_lectureId);
 
-        INFT(org.NftContract).mint(msg.sender, _lectureId, 1);
-        emit Events.AttendanceSigned(_lectureId, msg.sender);
+        if (msg.sender != org.relayer) {
+            revert Error.THREAT_DETECTED();
+        }
+
+        if (student == address(0)) {
+            revert Error.INVALID_STUDENT_ADDRESS();
+        }
+
+        if (!org.isStudent[student]) {
+            revert Error.NOT_A_STUDENT();
+        }
+
+        _signAttendanceInternal(student, lectureId);
+    }
+
+    function signAttendanceWithGas(bytes memory lectureId) internal {
+        Organisation storage org = orgStorage();
+
+        onlyStudents();
+
+        _signAttendanceInternal(msg.sender, lectureId);
     }
 
     function mentorHandover(address newMentor) internal {
@@ -349,28 +381,43 @@ library LibOrganisation {
         emit Events.Handover(msg.sender, newMentor);
     }
 
-    function openAttendance(bytes calldata _lectureId) internal {
+    function _openAttendance(bytes calldata _lectureId, address caller) private {
         Organisation storage org = orgStorage();
 
-        onlyMentorOnDuty();
-        if (org.lectureIdUsed[_lectureId] == false) {
+        if (!org.lectureIdUsed[_lectureId]) {
             revert Error.INVALID_LECTURE_ID();
         }
-        if (org.lectureInstance[_lectureId].status == true) {
+
+        if (org.lectureInstance[_lectureId].status) {
             revert Error.ATTENDANCE_ALREADY_OPEN();
         }
-        if (msg.sender != org.lectureInstance[_lectureId].mentorOnDuty) {
+
+        if (caller != org.lectureInstance[_lectureId].mentorOnDuty) {
             revert Error.UNAUTHORIZED_CALLER();
         }
 
         org.lectureInstance[_lectureId].status = true;
-        emit Events.attendanceOpened(_lectureId, msg.sender);
+
+        emit Events.attendanceOpened(_lectureId, caller);
     }
 
-    function closeAttendance(bytes calldata _lectureId) internal {
+    function openAttendance(bytes calldata _lectureId) internal {
+        onlyMentorOnDuty();
+        _openAttendance(_lectureId, msg.sender);
+    }
+
+    function openAttendanceGasless(address _mentorOnDuty, bytes calldata _lectureId) internal {
         Organisation storage org = orgStorage();
 
-        onlyMentorOnDuty();
+        if (msg.sender != org.relayer) {
+            revert Error.THREAT_DETECTED();
+        }
+
+        _openAttendance(_lectureId, _mentorOnDuty);
+    }
+
+    function _closeAttendance(bytes calldata _lectureId, address caller) private {
+        Organisation storage org = orgStorage();
 
         if (!org.lectureIdUsed[_lectureId]) {
             revert Error.INVALID_LECTURE_ID();
@@ -380,13 +427,28 @@ library LibOrganisation {
             revert Error.ATTENDANCE_ALREADY_CLOSED();
         }
 
-        if (msg.sender != org.lectureInstance[_lectureId].mentorOnDuty) {
+        if (caller != org.lectureInstance[_lectureId].mentorOnDuty) {
             revert Error.UNAUTHORIZED_CALLER();
         }
 
         org.lectureInstance[_lectureId].status = false;
 
-        emit Events.attendanceClosed(_lectureId, msg.sender);
+        emit Events.attendanceClosed(_lectureId, caller);
+    }
+
+    function closeAttendance(bytes calldata _lectureId) internal {
+        onlyMentorOnDuty();
+        _closeAttendance(_lectureId, msg.sender);
+    }
+
+    function closeAttendanceGasless(address _mentorOnDuty, bytes calldata _lectureId) internal {
+        Organisation storage org = orgStorage();
+
+        if (msg.sender != org.relayer) {
+            revert Error.THREAT_DETECTED();
+        }
+
+        _closeAttendance(_lectureId, _mentorOnDuty);
     }
 
     function recordResults(uint256 testId, string calldata _resultCid) internal {
