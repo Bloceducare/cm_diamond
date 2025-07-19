@@ -18,7 +18,7 @@ import { toast } from "sonner";
 export default function SubmitAttendanceID() {
   const [attendanceId, setAttendanceId] = useState("");
   const { address: studentAddress } = useAccount();
-  const { signAttendance, isConfirming, error } = useSignAttendance(
+  const { signAttendance, isConfirming } = useSignAttendance(
     studentAddress,
     attendanceId,
   );
@@ -91,14 +91,6 @@ export default function SubmitAttendanceID() {
               onChange={handleOnChange}
               disabled={isConfirming}
             />
-            {studentAddress ? (
-              <p className="text-xs mt-2">Signing for: {studentAddress}</p>
-            ) : (
-              <p className="text-xs mt-2 text-red-600">
-                Please connect your wallet
-              </p>
-            )}
-            {error && <p className="text-xs mt-2 text-red-600">{error}</p>}
           </CardContent>
           <div className="flex justify-end">
             <CardFooter className="gap-2">

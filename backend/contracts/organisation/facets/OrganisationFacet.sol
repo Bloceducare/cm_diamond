@@ -106,8 +106,16 @@ contract OrganisationFacet {
         LibOrganisation.mentorHandover(newMentor);
     }
 
+    function mentorHandoverGasless(address caller, address newMentor) external {
+        LibOrganisation.mentorHandoverGasless(caller, newMentor);
+    }
+
     function recordResults(uint256 testId, string calldata _resultCid) external {
         LibOrganisation.recordResults(testId, _resultCid);
+    }
+
+    function recordResultsGasless(address caller, uint256 testId, string calldata _resultCid) external {
+        LibOrganisation.recordResultsGasless(caller, testId, _resultCid);
     }
 
     function getResultCid() external view returns (string[] memory) {

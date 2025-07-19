@@ -31,7 +31,7 @@ const useOpenGaslessAttendance = () => {
         });
 
         const res = await fetch(
-          "https://cm-diamond.onrender.com/openAttendance",
+          `${process.env.NEXT_PUBLIC_RELAY_URL}/openAttendance`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

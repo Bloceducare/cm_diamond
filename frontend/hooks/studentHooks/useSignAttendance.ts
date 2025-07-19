@@ -61,6 +61,11 @@ const useSignAttendance = (
     setError(null);
 
     try {
+      toast.loading("Signing attendance...", {
+        id: "signAttendance",
+        position: "top-right",
+      });
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_RELAY_URL}/signAttendance`,
         {

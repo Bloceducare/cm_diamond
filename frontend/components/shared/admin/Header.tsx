@@ -177,20 +177,6 @@ const Header = ({
               <span>Connect Wallet</span>
             )}
           </Button>
-
-          {/* <Button */}
-          {/*   onClick={walletConnect} */}
-          {/*   type="button" */}
-          {/*   className={`transition-all duration-200  flex items-center gap-1 ${isConnected && "bg-white text-color1 hover:bg-color1 hover:text-white border border-color1"} ${!isConnected && "bg-color1 text-white border border-color1 hover:bg-color2"} ${isConnected && Number(selectedNetworkId) !== SUPPORTED_CHAIN_IDS && "bg-red-600 text-white border border-red-600 hover:bg-red-700"}`} */}
-          {/* > */}
-          {/*   {isConnected ? ( */}
-          {/*     <WalletConnected address={address} icon={walletInfo?.icon} /> */}
-          {/*   ) : ( */}
-          {/*     <span>Connect Wallet</span> */}
-          {/*   )} */}
-          {/* </Button> */}
-
-          {/* <!-- User Area --> */}
         </div>
       </div>
     </header>
