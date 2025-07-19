@@ -99,6 +99,11 @@ const useCreateGaslessAttendance = (
     setError(null);
 
     try {
+      toast.loading("Creating attendance...", {
+        id: "createGaslessAttendance",
+        position: "top-right",
+      });
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_RELAY_URL}/createAttendance`,
         {

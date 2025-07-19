@@ -26,7 +26,7 @@ const useCloseGaslessAttendance = () => {
         });
 
         const res = await fetch(
-          "https://cm-diamond.onrender.com/closeAttendance",
+          `${process.env.NEXT_PUBLIC_RELAY_URL}/closeAttendance`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

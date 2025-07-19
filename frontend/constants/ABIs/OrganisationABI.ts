@@ -524,6 +524,16 @@ export const OrganisationABI = [
     type: "function",
   },
   {
+    inputs: [
+      { internalType: "address", name: "caller", type: "address" },
+      { internalType: "address", name: "newMentor", type: "address" },
+    ],
+    name: "mentorHandoverGasless",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "string", name: "Uri", type: "string" }],
     name: "mintCertificate",
     outputs: [],
@@ -563,6 +573,17 @@ export const OrganisationABI = [
       { internalType: "string", name: "_resultCid", type: "string" },
     ],
     name: "recordResults",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "caller", type: "address" },
+      { internalType: "uint256", name: "testId", type: "uint256" },
+      { internalType: "string", name: "_resultCid", type: "string" },
+    ],
+    name: "recordResultsGasless",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

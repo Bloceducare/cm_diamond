@@ -371,14 +371,35 @@ library LibOrganisation {
         _signAttendanceInternal(msg.sender, lectureId);
     }
 
+    function _mentorHandover(address actor, address newMentor) private {
+        Organisation storage org = orgStorage();
+        org.mentorOnDuty = newMentor;
+        emit Events.Handover(actor, newMentor);
+    }
+
     function mentorHandover(address newMentor) internal {
         Organisation storage org = orgStorage();
+        address actor = msg.sender;
 
-        if (msg.sender != org.mentorOnDuty && msg.sender != org.moderator) {
+        if (actor != org.mentorOnDuty && actor != org.moderator) {
             revert Error.UNAUTHORIZED_CALLER();
         }
-        org.mentorOnDuty = newMentor;
-        emit Events.Handover(msg.sender, newMentor);
+
+        _mentorHandover(actor, newMentor);
+    }
+
+    function mentorHandoverGasless(address caller, address newMentor) internal {
+        Organisation storage org = orgStorage();
+
+        if (msg.sender != org.relayer) {
+            revert Error.THREAT_DETECTED();
+        }
+
+        if (caller != org.mentorOnDuty && caller != org.moderator) {
+            revert Error.UNAUTHORIZED_CALLER();
+        }
+
+        _mentorHandover(caller, newMentor);
     }
 
     function _openAttendance(bytes calldata _lectureId, address caller) private {
@@ -451,16 +472,33 @@ library LibOrganisation {
         _closeAttendance(_lectureId, _mentorOnDuty);
     }
 
-    function recordResults(uint256 testId, string calldata _resultCid) internal {
+    function _recordResults(address actor, uint256 testId, string calldata _resultCid) private {
         Organisation storage org = orgStorage();
 
-        onlyMentorOnDuty();
+        if (actor != org.mentorOnDuty) {
+            revert Error.NOT_A_VALID_MODERATOR();
+        }
+
         if (org.testIdUsed[testId]) {
             revert Error.TEST_ID_ALREADY_USED();
         }
+
         org.testIdUsed[testId] = true;
         org.resultCid.push(_resultCid);
-        emit Events.newResultUpdated(testId, msg.sender);
+        emit Events.newResultUpdated(testId, actor);
+    }
+
+    function recordResults(uint256 testId, string calldata _resultCid) internal {
+        _recordResults(msg.sender, testId, _resultCid);
+    }
+
+    function recordResultsGasless(address caller, uint256 testId, string calldata _resultCid) internal {
+        Organisation storage org = orgStorage();
+
+        if (msg.sender != org.relayer) {
+            revert Error.THREAT_DETECTED();
+        }
+        _recordResults(caller, testId, _resultCid);
     }
 
     function evictStudents(address[] calldata studentsToRevoke) internal {

@@ -28,6 +28,10 @@ export const sideLinksAd = [
     href: "/admin/uploadscore",
   },
   {
+    name: "Upload Score Gasless",
+    href: "/admin/uploadscoregasless",
+  },
+  {
     name: "View Scores",
     href: "/admin/viewscores",
   },
