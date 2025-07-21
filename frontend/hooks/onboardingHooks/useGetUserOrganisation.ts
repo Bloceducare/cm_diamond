@@ -31,7 +31,7 @@ const useGetUserOrganisations = (_userAddress: any) => {
 
     case "42161":
       addressToBeUsed = process.env
-        .NEXT_PUBLIC_LISK_ORG_FACTORY_CONTRACT as `0x${string}`;
+        .NEXT_PUBLIC_ARBITRUM_ORG_FACTORY_CONTRACT as `0x${string}`;
       break;
 
     default:
@@ -59,7 +59,7 @@ const useGetUserOrganisations = (_userAddress: any) => {
 
     try {
       const formattedRes = listOfOrganisations.map((address: any) =>
-        address.toString()
+        address.toString(),
       );
 
       const data = formattedRes.map(async (address: any) => {

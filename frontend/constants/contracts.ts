@@ -22,7 +22,7 @@ export const getOrgFactoryContract = (
 
     case "42161":
       addressToBeUsed = process.env
-        .NEXT_PUBLIC_LISK_ORG_FACTORY_CONTRACT as `0x${string}`;
+        .NEXT_PUBLIC_ARBITRUM_ORG_FACTORY_CONTRACT as `0x${string}`;
       break;
 
     default:

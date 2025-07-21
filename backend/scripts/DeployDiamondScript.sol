@@ -113,10 +113,10 @@ contract DiamondUpgradeScript is Script {
         OrganisationFactoryFacet orgFactory = OrganisationFactoryFacet(diamondAddress);
         (address organisation, address OrganisationNft, address OrganisationMentorsSpok, address OrganizationCertNft) =
         orgFactory.createorganisation(
-            "WEB3BRIDGE",
-            "COHORT XIII",
-            "https://gray-quiet-egret-248.mypinata.cloud/ipfs/QmfJwH4SoW3PgnpQ5fhM1NaH9Buf7uDRkVSB1sKPk9cKkY",
-            "Mr.Sam",
+            "Web3bridge",
+            "Rust Cohort I",
+            "https://gray-quiet-egret-248.mypinata.cloud/ipfs/QmduoeQVYndB877XVGdnAn4Fudgx53fH2GLrztfbpqCkCs",
+            "Chief Mechanic",
             relayer
         );
 
@@ -134,7 +134,7 @@ contract DiamondUpgradeScript is Script {
     }
 
     function writeAddressesToFile(address addr, string memory text) public {
-        string memory filename = "./lisk_contracts_new2.txt";
+        string memory filename = "./arbitrum_contracts_new_final.txt";
 
         vm.writeLine(filename, "-------------------------------------------------");
         vm.writeLine(filename, text);
