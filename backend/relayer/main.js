@@ -21,9 +21,10 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(morgan("common"));
 
+// Network configuration
 const NETWORKS = {
-  MAINNET: {
-    name: "mainnet",
+  SEPOLIA: {
+    name: "sepolia",
     rpcUrl: process.env.RPC_URL,
     chainId: 84532,
   },
@@ -42,9 +43,9 @@ const NETWORKS = {
 // Helper function to detect network based on contract address or other parameters
 async function detectNetwork(contractAddress) {
   try {
-    const ethProvider = new ethers.JsonRpcProvider(NETWORKS.MAINNET.rpcUrl);
+    const ethProvider = new ethers.JsonRpcProvider(NETWORKS.SEPOLIA.rpcUrl);
     const code = await ethProvider.getCode(contractAddress);
-    if (code !== "0x") return NETWORKS.MAINNET;
+    if (code !== "0x") return NETWORKS.SEPOLIA;
 
     const arbProvider = new ethers.JsonRpcProvider(NETWORKS.ARBITRUM.rpcUrl);
     const arbCode = await arbProvider.getCode(contractAddress);
@@ -61,7 +62,7 @@ async function detectNetwork(contractAddress) {
   }
 }
 
-// Helper to get the encryptedKey
+// Helper function to Load wallet
 function getWallet(provider) {
   const tmpPath = "/tmp/encryptedKey.json";
   fs.writeFileSync(tmpPath, process.env.ENCRYPTED_KEY);
@@ -210,7 +211,116 @@ app.post("/closeAttendance", async (req, res) => {
   }
 });
 
-// Server start
+app.post("/mentorHandover", async (req, res) => {
+  const { caller, newMentor, contractAddress } = req.body;
+
+  if (
+    !ethers.isAddress(caller) ||
+    !ethers.isAddress(newMentor) ||
+    !ethers.isAddress(contractAddress)
+  ) {
+    return res.status(400).json({ success: false, message: "Invalid address" });
+  }
+
+  try {
+    const network = await detectNetwork(contractAddress);
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl);
+
+    const wallet = ethers.Wallet.fromEncryptedJsonSync(
+      process.env.ENCRYPTED_KEY,
+      process.env.PRIVATE_KEY_PASSWORD,
+    ).connect(provider);
+
+    const contract = new ethers.Contract(contractAddress, ABI, wallet);
+
+    const tx = await contract.mentorHandoverGasless(caller, newMentor);
+    const receipt = await tx.wait();
+
+    if (receipt.status === 1) {
+      return res.status(200).json({ success: true, txHash: tx.hash });
+    }
+
+    return res.status(500).json({ success: false, txHash: tx.hash });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post("/recordResults", async (req, res) => {
+  const { caller, testId, resultCid, contractAddress } = req.body;
+  console.log("Received /recordResults:", {
+    caller,
+    testId,
+    resultCid,
+    contractAddress,
+  });
+
+  // Input validation
+  if (
+    !ethers.isAddress(caller) ||
+    !ethers.isHexString(testId, 32) ||
+    typeof resultCid !== "string" ||
+    !ethers.isAddress(contractAddress)
+  ) {
+    console.log("Validation failed:", {
+      caller,
+      testId,
+      resultCid,
+      contractAddress,
+    });
+    return res.status(400).json({
+      success: false,
+      message: "Invalid input format",
+      details: {
+        caller: ethers.isAddress(caller) ? "Valid" : "Invalid address",
+        testId: ethers.isHexString(testId, 32)
+          ? "Valid"
+          : "Invalid 32-byte hex string",
+        resultCid: typeof resultCid === "string" ? "Valid" : "Invalid string",
+        contractAddress: ethers.isAddress(contractAddress)
+          ? "Valid"
+          : "Invalid address",
+      },
+    });
+  }
+
+  try {
+    const parsedTestId = BigInt(testId);
+    const network = await detectNetwork(contractAddress);
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl);
+    const wallet = getWallet(provider);
+    const contract = new ethers.Contract(contractAddress, ABI, wallet);
+
+    console.log("Calling recordResultsGasless with:", {
+      caller,
+      parsedTestId,
+      resultCid,
+    });
+    const tx = await contract.recordResultsGasless(
+      caller,
+      parsedTestId,
+      resultCid,
+    );
+    const receipt = await tx.wait();
+
+    res.status(receipt.status === 1 ? 200 : 500).json({
+      success: receipt.status === 1,
+      txHash: tx.hash,
+      message: receipt.status === 1 ? "Results recorded" : "Transaction failed",
+      network: network.name,
+    });
+  } catch (err) {
+    console.error("Contract call error:", err);
+    res.status(500).json({
+      success: false,
+      message: err.reason || err.message || "Unknown error",
+      txHash: null,
+      network: "unknown",
+    });
+  }
+});
+// start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

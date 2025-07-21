@@ -12,6 +12,19 @@ deployF:
 	--account josh_base \
 	--sender 0xb9d5b499e3de63810e0d4883c1f0c84bc5f80660
 
+deployARB:
+	forge script scripts/DeployDiamondScript.sol:DiamondUpgradeScript \
+  --rpc-url ${ARB_RPC_URL} \
+  --broadcast \
+  --sig "deployMainDiamond()" \
+	--verify \
+	--etherscan-api-key ${ARBITRUM_API_KEY} \
+	--verifier etherscan \
+	--verifier-url "https://api.arbiscan.io/api" \
+	--account w3b-relayer \
+	--sender 0x6c798393352588A466FD4B2dAC7EED78aFF92AeF
+
+
 deployLisk:
 	forge script scripts/DeployDiamondScript.sol:DiamondUpgradeScript \
 	--rpc-url https://rpc.api.lisk.com \
