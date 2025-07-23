@@ -4,8 +4,8 @@ import { useAccount } from "wagmi";
 
 const useMentorHandoverGasless = (newMentor: string | null) => {
   const { address: senderAddress } = useAccount();
-  const [isConfirmingGasless, setIsConfirming] = useState(false);
-  const [isConfirmedGasless, setIsConfirmed] = useState(false);
+  const [isConfirmingGasless, setIsConfirmingGasless] = useState(false);
+  const [isConfirmedGasless, setIsConfirmedGasless] = useState(false);
 
   const active_organisation = window.localStorage?.getItem(
     "active_organisation",
@@ -18,7 +18,7 @@ const useMentorHandoverGasless = (newMentor: string | null) => {
       return;
     }
 
-    setIsConfirming(true);
+    setIsConfirmingGasless(true);
     const toastId = "handover-gasless";
 
     toast.loading("Submitting mentor handover...", {
@@ -45,6 +45,7 @@ const useMentorHandoverGasless = (newMentor: string | null) => {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        console.error("Mentor handover error:", data);
         throw new Error(data.message || "Mentor handover failed");
       }
 
@@ -52,14 +53,14 @@ const useMentorHandoverGasless = (newMentor: string | null) => {
         id: toastId,
         position: "top-right",
       });
-      setIsConfirmed(true);
+      setIsConfirmedGasless(true);
     } catch (err: any) {
       toast.error(err.message, {
         id: toastId,
         position: "top-right",
       });
     } finally {
-      setIsConfirming(false);
+      setIsConfirmingGasless(false);
     }
   }, [senderAddress, newMentor]);
 
