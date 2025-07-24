@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useReadContract } from "wagmi";
 
-const useGetMentorName = (_userAddress: `0x{string}`) => {
+const useGetMentorName = (_userAddress: `0x${string}` | undefined) => {
   const [mentorName, setMentorName] = useState("");
   const [contractAddress, setContractAddress] = useState<`0x${string}` | null>(
     null,
@@ -32,7 +32,7 @@ const useGetMentorName = (_userAddress: `0x{string}`) => {
     address: contractAddress ?? undefined,
     abi: OrganisationABI,
     functionName: "getMentorsName",
-    args: [_userAddress],
+    args: [_userAddress as `0x${string}`],
     query: {
       enabled: !!contractAddress && !!_userAddress,
       staleTime: 1000 * 60 * 5, // cache 5 minutes
