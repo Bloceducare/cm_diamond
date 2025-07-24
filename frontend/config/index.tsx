@@ -10,7 +10,7 @@ if (!projectId) throw new Error("Project ID is not defined");
 const metadata = {
   name: "Classmate",
   description: "An onchain LMS system",
-  url: "https://classmate.web3bridge.com/",
+  url: "https://classmate-v2.web3bridge.com/",
   icons: ["/favicon.ico"],
 };
 
