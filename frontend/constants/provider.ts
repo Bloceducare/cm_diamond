@@ -12,7 +12,6 @@ const RPC_URLS = {
 
 // Chain-specific WebSocket URLs
 const WSS_URLS = {
-  // lisk: process.env.NEXT_PUBLIC_LISK_WSS || "", // Commented out as per your code
   arbitrum: process.env.NEXT_PUBLIC_ARBITRUM_WSS || "",
   baseSepolia: process.env.NEXT_PUBLIC_WEBSOCKET_RPC || "",
 };
